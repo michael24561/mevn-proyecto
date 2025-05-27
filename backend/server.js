@@ -1,6 +1,8 @@
 require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
+const cors = require("cors");
+
 const productoRoutes = require('./routes/productoRoutes');
 const carritoRoutes = require('./routes/carritoRoutes');
 const categoriaRoutes = require('./routes/categoriaRoutes');
@@ -15,6 +17,10 @@ const sucursalRoutes = require('./routes/sucursalRoutes');
 const ventaRoutes = require('./routes/ventaRoutes');
 
 const app = express();
+app.use(cors({
+  origin: 'http://localhost:3000', // URL de tu Next.js
+  methods: ['GET', 'POST', 'PUT', 'DELETE']
+}));
 app.use(express.json());
 
 const PORT = 5000;
