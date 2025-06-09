@@ -23,23 +23,46 @@ export default function SignIn({ csrfToken }) {
   };
 
   return (
-    <div>
-      <h1>Iniciar sesión</h1>
-      <form onSubmit={handleSubmit}>
-        <input name="csrfToken" type="hidden" defaultValue={csrfToken} />
-        <input name="username" type="text" placeholder="Usuario" required />
-        <input name="password" type="password" placeholder="Contraseña" required />
-        <button type="submit">Entrar</button>
-      </form>
-      {error && <p style={{color: "red"}}>{error}</p>}
+    <div className="container d-flex justify-content-center align-items-center vh-100 bg-light">
+      <div className="card p-4 shadow" style={{ maxWidth: "400px", width: "100%", borderColor: '#59ab6e' }}>
+        <h2 className="text-center mb-4 text-success">Iniciar sesión</h2>
+        <form onSubmit={handleSubmit}>
+          <input name="csrfToken" type="hidden" defaultValue={csrfToken} />
+          <div className="mb-3">
+            <label htmlFor="username" className="form-label text-muted">Usuario</label>
+            <input
+              id="username"
+              name="username"
+              type="text"
+              className="form-control border-success"
+              placeholder="Usuario"
+              required
+            />
+          </div>
+          <div className="mb-3">
+            <label htmlFor="password" className="form-label text-muted">Contraseña</label>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              className="form-control border-success"
+              placeholder="Contraseña"
+              required
+            />
+          </div>
+          {error && <div className="alert alert-danger" role="alert">{error}</div>}
+          <button type="submit" className="btn btn-success w-100">Entrar</button>
+        </form>
+      </div>
     </div>
   );
 }
 
 export async function getServerSideProps(context) {
+  const csrfToken = await getCsrfToken(context);
   return {
     props: {
-      csrfToken: await getCsrfToken(context),
+      csrfToken: csrfToken ?? null,
     },
   };
 }
