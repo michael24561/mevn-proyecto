@@ -52,10 +52,13 @@ export default function SignIn({ csrfToken }) {
           </div>
           {error && <div className="alert alert-danger" role="alert">{error}</div>}
           <button type="submit" className="btn btn-success w-100">Entrar</button>
-        </form>
+          </form>
+          <p className="mt-3 text-center">
+            ¿No tienes una cuenta? <a href="/auth/signup" className="text-success">Crea una cuenta</a>
+          </p>
+        </div>
       </div>
-    </div>
-  );
+    );
 }
 
 export async function getServerSideProps(context) {
