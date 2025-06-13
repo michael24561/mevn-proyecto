@@ -1,4 +1,4 @@
-// src/app/page.tsx
+// app/about/page.tsx
 'use client';
 
 import { useSession, signOut } from 'next-auth/react';
@@ -6,7 +6,7 @@ import Image from 'next/image';
 import Head from 'next/head';
 import Link from 'next/link';
 
-export default function HomePage() {
+export default function AboutPage() {
   const { data: session, status } = useSession();
 
   const handleLogout = async () => {
@@ -20,7 +20,7 @@ export default function HomePage() {
   return (
     <>
       <Head>
-        <title>Licores Deluxe - Tienda Premium de Licores</title>
+        <title>Licores Deluxe - Sobre Nosotros</title>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="apple-touch-icon" href="/assets/img/apple-icon.png" />
@@ -81,7 +81,7 @@ export default function HomePage() {
                   <Link className="nav-link" href="/">Inicio</Link>
                 </li>
                 <li className="nav-item">
-                  <Link className="nav-link" href="/about">Nosotros</Link>
+                  <Link className="nav-link active" href="/about">Nosotros</Link>
                 </li>
                 <li className="nav-item">
                   <Link className="nav-link" href="/shop">Productos</Link>
@@ -193,224 +193,137 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Carrusel Hero */}
-      <div id="licores-hero-carousel" className="carousel slide" data-bs-ride="carousel">
-        <ol className="carousel-indicators">
-          <li data-bs-target="#licores-hero-carousel" data-bs-slide-to="0" className="active"></li>
-          <li data-bs-target="#licores-hero-carousel" data-bs-slide-to="1"></li>
-          <li data-bs-target="#licores-hero-carousel" data-bs-slide-to="2"></li>
-        </ol>
-        <div className="carousel-inner">
-          <div className="carousel-item active">
-            <div className="container">
-              <div className="row p-5">
-                <div className="mx-auto col-md-8 col-lg-6 order-lg-last">
-                  <img className="img-fluid" src="/assets/img/banner_whisky.jpg" alt="Colección de Whisky" />
-                </div>
-                <div className="col-lg-6 mb-0 d-flex align-items-center">
-                  <div className="text-align-left align-self-center">
-                    <h1 className="h1 text-success"><b>Licores</b> Deluxe</h1>
-                    <h3 className="h2">Descubre los sabores más exclusivos</h3>
-                    <p>
-                      Licores Deluxe es tu tienda premium de bebidas espirituosas con las mejores 
-                      selecciones de whisky, ron, vodka y más. Ofrecemos productos de alta gama 
-                      cuidadosamente seleccionados por nuestros expertos.
-                    </p>
-                    <Link href="/shop" className="btn btn-success btn-lg">
-                      Explorar Colección
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="carousel-item">
-            <div className="container">
-              <div className="row p-5">
-                <div className="mx-auto col-md-8 col-lg-6 order-lg-last">
-                  <img className="img-fluid" src="/assets/img/banner_cocteles.jpg" alt="Coctelería Premium" />
-                </div>
-                <div className="col-lg-6 mb-0 d-flex align-items-center">
-                  <div className="text-align-left">
-                    <h1 className="h1">Ediciones Limitadas</h1>
-                    <h3 className="h2">Para los paladares más exigentes</h3>
-                    <p>
-                      Descubre nuestras exclusivas ediciones limitadas y botellas de coleccionista 
-                      que no encontrarás en ningún otro lugar. Cada producto cuenta una historia única.
-                    </p>
-                    <Link href="/limited-editions" className="btn btn-success btn-lg">
-                      Ver Ediciones
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="carousel-item">
-            <div className="container">
-              <div className="row p-5">
-                <div className="mx-auto col-md-8 col-lg-6 order-lg-last">
-                  <img className="img-fluid" src="/assets/img/banner_regalos.jpg" alt="Regalos de Lujo" />
-                </div>
-                <div className="col-lg-6 mb-0 d-flex align-items-center">
-                  <div className="text-align-left">
-                    <h1 className="h1">Regalos Exclusivos</h1>
-                    <h3 className="h2">Empaquetado premium</h3>
-                    <p>
-                      Sorprende a tus seres queridos con nuestros packs regalo de alta gama. 
-                      Incluyen embalaje de lujo y tarjeta personalizada para ocasiones especiales.
-                    </p>
-                    <Link href="/gifts" className="btn btn-success btn-lg">
-                      Ver Regalos
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <a className="carousel-control-prev text-decoration-none w-auto ps-3" href="#licores-hero-carousel" role="button" data-bs-slide="prev">
-          <i className="fas fa-chevron-left"></i>
-        </a>
-        <a className="carousel-control-next text-decoration-none w-auto pe-3" href="#licores-hero-carousel" role="button" data-bs-slide="next">
-          <i className="fas fa-chevron-right"></i>
-        </a>
-      </div>
-
-      {/* Categorías Destacadas */}
-      <section className="container py-5">
-        <div className="row text-center pt-3">
-          <div className="col-lg-6 m-auto">
-            <h1 className="h1">Categorías Destacadas</h1>
-            <p>
-              Explora nuestras selecciones premium de las mejores categorías de licores.
-            </p>
-          </div>
-        </div>
-        <div className="row">
-          <div className="col-12 col-md-4 p-5 mt-3">
-            <Link href="/whisky">
-              <img src="/assets/img/categoria_whisky.jpg" className="rounded-circle img-fluid border" alt="Whiskies Premium" />
-            </Link>
-            <h5 className="text-center mt-3 mb-3">Whiskies Premium</h5>
-            <p className="text-center">
-              <Link href="/whisky" className="btn btn-success">
-                Ver Colección
-              </Link>
-            </p>
-          </div>
-          <div className="col-12 col-md-4 p-5 mt-3">
-            <Link href="/ron">
-              <img src="/assets/img/categoria_ron.jpg" className="rounded-circle img-fluid border" alt="Ron Añejo" />
-            </Link>
-            <h2 className="h5 text-center mt-3 mb-3">Ron Añejo</h2>
-            <p className="text-center">
-              <Link href="/ron" className="btn btn-success">
-                Ver Colección
-              </Link>
-            </p>
-          </div>
-          <div className="col-12 col-md-4 p-5 mt-3">
-            <Link href="/vodka">
-              <img src="/assets/img/categoria_vodka.jpg" className="rounded-circle img-fluid border" alt="Vodka de Lujo" />
-            </Link>
-            <h2 className="h5 text-center mt-3 mb-3">Vodka de Lujo</h2>
-            <p className="text-center">
-              <Link href="/vodka" className="btn btn-success">
-                Ver Colección
-              </Link>
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Productos Destacados */}
-      <section className="bg-light">
-        <div className="container py-5">
-          <div className="row text-center py-3">
-            <div className="col-lg-6 m-auto">
-              <h1 className="h1">Productos Destacados</h1>
+      {/* Sección Hero */}
+      <section className="bg-success py-5">
+        <div className="container">
+          <div className="row align-items-center py-5">
+            <div className="col-md-8 text-white">
+              <h1>Nuestra Historia</h1>
               <p>
-                Nuestras selecciones más exclusivas, elegidas por nuestros expertos en licores.
+                Licores Deluxe nació de la pasión por los destilados finos y el arte de la mixología. 
+                Desde 2010, nos dedicamos a seleccionar las mejores bebidas espirituosas del mundo 
+                para los paladares más exigentes. Nuestro equipo de sommeliers y expertos en licores 
+                viaja por los cinco continentes en busca de productos exclusivos y ediciones limitadas.
+              </p>
+              <p>
+                Más que una tienda, somos una comunidad de amantes de los buenos licores que valoran 
+                la calidad, el origen y las historias detrás de cada botella.
               </p>
             </div>
+            <div className="col-md-4">
+              <img src="/assets/img/about-hero.svg" alt="Licores Premium" className="img-fluid" />
+            </div>
           </div>
-          <div className="row">
-            <div className="col-12 col-md-4 mb-4">
-              <div className="card h-100">
-                <Link href="/producto/macallan-25">
-                  <img src="/assets/img/whisky_macallan.jpg" className="card-img-top" alt="Macallan 25 años" />
-                </Link>
-                <div className="card-body">
-                  <ul className="list-unstyled d-flex justify-content-between">
-                    <li>
-                      <i className="text-warning fa fa-star"></i>
-                      <i className="text-warning fa fa-star"></i>
-                      <i className="text-warning fa fa-star"></i>
-                      <i className="text-warning fa fa-star"></i>
-                      <i className="text-warning fa fa-star"></i>
-                    </li>
-                    <li className="text-muted text-right">$1,250.00</li>
-                  </ul>
-                  <Link href="/producto/macallan-25" className="h2 text-decoration-none text-dark">
-                    The Macallan 25 años
-                  </Link>
-                  <p className="card-text">
-                    Whisky escocés single malt envejecido 25 años en barriles de jerez. Notas de frutos secos, chocolate y especias.
-                  </p>
-                  <p className="text-muted">Valoraciones (42)</p>
-                </div>
-              </div>
+        </div>
+      </section>
+
+      {/* Nuestros Servicios */}
+      <section className="container py-5">
+        <div className="row text-center pt-5 pb-3">
+          <div className="col-lg-6 m-auto">
+            <h1 className="h1">Nuestros Servicios</h1>
+            <p>
+              Ofrecemos una experiencia de compra premium para los verdaderos conocedores de bebidas espirituosas.
+            </p>
+          </div>
+        </div>
+        <div className="row">
+          <div className="col-md-6 col-lg-3 pb-5">
+            <div className="h-100 py-5 services-icon-wap shadow">
+              <div className="h1 text-success text-center"><i className="fa fa-truck fa-lg"></i></div>
+              <h2 className="h5 mt-4 text-center">Entrega Express</h2>
+              <p className="text-center px-3">Envío en 24/48h con embalaje especial para licores</p>
             </div>
-            <div className="col-12 col-md-4 mb-4">
-              <div className="card h-100">
-                <Link href="/producto/patron-burdeos">
-                  <img src="/assets/img/tequila_patron.jpg" className="card-img-top" alt="Patrón Burdeos" />
-                </Link>
-                <div className="card-body">
-                  <ul className="list-unstyled d-flex justify-content-between">
-                    <li>
-                      <i className="text-warning fa fa-star"></i>
-                      <i className="text-warning fa fa-star"></i>
-                      <i className="text-warning fa fa-star"></i>
-                      <i className="text-warning fa fa-star"></i>
-                      <i className="text-muted fa fa-star"></i>
-                    </li>
-                    <li className="text-muted text-right">$350.00</li>
-                  </ul>
-                  <Link href="/producto/patron-burdeos" className="h2 text-decoration-none text-dark">
-                    Patrón Burdeos
-                  </Link>
-                  <p className="card-text">
-                    Tequila añejo envejecido en barricas de vino de Burdeos. Aromas a frutos rojos, vainilla y roble.
-                  </p>
-                  <p className="text-muted">Valoraciones (28)</p>
-                </div>
-              </div>
+          </div>
+
+          <div className="col-md-6 col-lg-3 pb-5">
+            <div className="h-100 py-5 services-icon-wap shadow">
+              <div className="h1 text-success text-center"><i className="fas fa-exchange-alt"></i></div>
+              <h2 className="h5 mt-4 text-center">Asesoramiento Expertos</h2>
+              <p className="text-center px-3">Recomendaciones personalizadas por nuestros sommeliers</p>
             </div>
-            <div className="col-12 col-md-4 mb-4">
-              <div className="card h-100">
-                <Link href="/producto/hennessy-paradis">
-                  <img src="/assets/img/coñac_hennessy.jpg" className="card-img-top" alt="Hennessy Paradis" />
-                </Link>
-                <div className="card-body">
-                  <ul className="list-unstyled d-flex justify-content-between">
-                    <li>
-                      <i className="text-warning fa fa-star"></i>
-                      <i className="text-warning fa fa-star"></i>
-                      <i className="text-warning fa fa-star"></i>
-                      <i className="text-warning fa fa-star"></i>
-                      <i className="text-warning fa fa-star-half-alt"></i>
-                    </li>
-                    <li className="text-muted text-right">$2,800.00</li>
-                  </ul>
-                  <Link href="/producto/hennessy-paradis" className="h2 text-decoration-none text-dark">
-                    Hennessy Paradis
-                  </Link>
-                  <p className="card-text">
-                    Coñac excepcional que combina más de 100 eaux-de-vie. Elegancia, complejidad y un final infinito.
-                  </p>
-                  <p className="text-muted">Valoraciones (65)</p>
+          </div>
+
+          <div className="col-md-6 col-lg-3 pb-5">
+            <div className="h-100 py-5 services-icon-wap shadow">
+              <div className="h1 text-success text-center"><i className="fa fa-gift"></i></div>
+              <h2 className="h5 mt-4 text-center">Regalos Premium</h2>
+              <p className="text-center px-3">Embalaje de lujo y tarjetas personalizadas</p>
+            </div>
+          </div>
+
+          <div className="col-md-6 col-lg-3 pb-5">
+            <div className="h-100 py-5 services-icon-wap shadow">
+              <div className="h1 text-success text-center"><i className="fa fa-lock"></i></div>
+              <h2 className="h5 mt-4 text-center">Compra Segura</h2>
+              <p className="text-center px-3">Proceso de verificación de edad y entrega responsable</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Nuestras Marcas */}
+      <section className="bg-light py-5">
+        <div className="container my-4">
+          <div className="row text-center py-3">
+            <div className="col-lg-6 m-auto">
+              <h1 className="h1">Nuestras Marcas</h1>
+              <p>
+                Colaboramos con las mejores destilerías y bodegas del mundo para ofrecerte una selección exclusiva.
+              </p>
+            </div>
+            <div className="col-lg-9 m-auto tempaltemo-carousel">
+              <div className="row d-flex flex-row">
+                <div className="col-1 align-self-center">
+                  <a className="h1" href="#brandCarousel" role="button" data-bs-slide="prev">
+                    <i className="text-dark fas fa-chevron-left"></i>
+                  </a>
+                </div>
+
+                <div className="col">
+                  <div className="carousel slide carousel-multi-item pt-2 pt-md-0" id="brandCarousel" data-bs-ride="carousel">
+                    <div className="carousel-inner product-links-wap" role="listbox">
+                      <div className="carousel-item active">
+                        <div className="row">
+                          <div className="col-3 p-md-5">
+                            <a href="#"><img className="img-fluid brand-img" src="/assets/img/whisky-brand.png" alt="Whisky Premium" /></a>
+                          </div>
+                          <div className="col-3 p-md-5">
+                            <a href="#"><img className="img-fluid brand-img" src="/assets/img/tequila-brand.png" alt="Tequila Artesanal" /></a>
+                          </div>
+                          <div className="col-3 p-md-5">
+                            <a href="#"><img className="img-fluid brand-img" src="/assets/img/gin-brand.png" alt="Gin Botánico" /></a>
+                          </div>
+                          <div className="col-3 p-md-5">
+                            <a href="#"><img className="img-fluid brand-img" src="/assets/img/rum-brand.png" alt="Ron Añejo" /></a>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="carousel-item">
+                        <div className="row">
+                          <div className="col-3 p-md-5">
+                            <a href="#"><img className="img-fluid brand-img" src="/assets/img/vodka-brand.png" alt="Vodka Premium" /></a>
+                          </div>
+                          <div className="col-3 p-md-5">
+                            <a href="#"><img className="img-fluid brand-img" src="/assets/img/cognac-brand.png" alt="Cognac Exclusivo" /></a>
+                          </div>
+                          <div className="col-3 p-md-5">
+                            <a href="#"><img className="img-fluid brand-img" src="/assets/img/mezcal-brand.png" alt="Mezcal Artesanal" /></a>
+                          </div>
+                          <div className="col-3 p-md-5">
+                            <a href="#"><img className="img-fluid brand-img" src="/assets/img/champagne-brand.png" alt="Champagne de Lujo" /></a>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="col-1 align-self-center">
+                  <a className="h1" href="#brandCarousel" role="button" data-bs-slide="next">
+                    <i className="text-dark fas fa-chevron-right"></i>
+                  </a>
                 </div>
               </div>
             </div>
@@ -418,34 +331,24 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Sección de Beneficios */}
+      {/* Sección de Compromiso */}
       <section className="container py-5">
-        <div className="row text-center py-3">
-          <div className="col-lg-6 m-auto">
-            <h1 className="h1">¿Por qué elegir Licores Deluxe?</h1>
-          </div>
-        </div>
         <div className="row">
-          <div className="col-md-4 text-center p-4">
-            <div className="h1 text-success mb-3">
-              <i className="fas fa-check-circle"></i>
-            </div>
-            <h4>Autenticidad Garantizada</h4>
-            <p>Trabajamos directamente con productores y distribuidores autorizados</p>
+          <div className="col-lg-6">
+            <h2 className="h2 text-success">Nuestro Compromiso</h2>
+            <p>
+              En Licores Deluxe garantizamos la autenticidad de cada botella. Trabajamos directamente 
+              con productores y distribuidores autorizados para ofrecerte productos 100% originales.
+            </p>
+            <ul className="list-unstyled">
+              <li className="py-2"><i className="fas fa-check text-success me-2"></i> Certificados de autenticidad</li>
+              <li className="py-2"><i className="fas fa-check text-success me-2"></i> Condiciones óptimas de almacenamiento</li>
+              <li className="py-2"><i className="fas fa-check text-success me-2"></i> Entrega con control de temperatura</li>
+              <li className="py-2"><i className="fas fa-check text-success me-2"></i> Servicio de verificación de coleccionables</li>
+            </ul>
           </div>
-          <div className="col-md-4 text-center p-4">
-            <div className="h1 text-success mb-3">
-              <i className="fas fa-shipping-fast"></i>
-            </div>
-            <h4>Envío Premium</h4>
-            <p>Embalaje especial y control de temperatura para tus licores</p>
-          </div>
-          <div className="col-md-4 text-center p-4">
-            <div className="h1 text-success mb-3">
-              <i className="fas fa-user-tie"></i>
-            </div>
-            <h4>Asesoramiento Expertos</h4>
-            <p>Nuestros sommeliers te ayudarán a encontrar el licor perfecto</p>
+          <div className="col-lg-6">
+            <img src="/assets/img/wine-cellar.jpg" alt="Bodega de Licores" className="img-fluid rounded shadow" />
           </div>
         </div>
       </section>

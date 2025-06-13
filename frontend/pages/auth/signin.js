@@ -1,45 +1,60 @@
-import { getCsrfToken, signIn } from "next-auth/react";
-import { useState } from "react";
+import { signIn } from 'next-auth/react';
+import { useState } from 'react';
+import { useRouter } from 'next/router';
 
-export default function SignIn({ csrfToken }) {
-  const [error, setError] = useState(null);
+export default function SignIn() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const router = useRouter();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const username = e.target.username.value;
-    const password = e.target.password.value;
+    setError('');
 
-    const res = await signIn("credentials", {
+    const result = await signIn('credentials', {
       redirect: false,
-      username,
+      email,
       password,
     });
 
-    if (res.error) {
-      setError("Usuario o contraseña incorrecta");
+    if (result?.error) {
+      setError(result.error);
     } else {
-      window.location.href = "http://localhost:3000/dashboard"; // Redirige al dashboard
+      // Obtenemos la sesión actualizada después del login
+      const response = await fetch('/api/auth/session');
+      const session = await response.json();
+
+      // Redirigir según el rol
+      if (session?.user?.role === 'admin') {
+        router.push('/admin/dashboard'); // Ruta para admin
+      } else {
+        router.push('/'); // Ruta para usuario normal (página principal)
+      }
     }
   };
 
   return (
     <div>
-      <h1>Iniciar sesión</h1>
+      <h1>Iniciar Sesión</h1>
+      {error && <p style={{ color: 'red' }}>{error}</p>}
       <form onSubmit={handleSubmit}>
-        <input name="csrfToken" type="hidden" defaultValue={csrfToken} />
-        <input name="username" type="text" placeholder="Usuario" required />
-        <input name="password" type="password" placeholder="Contraseña" required />
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="Email"
+          required
+        />
+        <input
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="Contraseña"
+          required
+        />
         <button type="submit">Entrar</button>
       </form>
-      {error && <p style={{color: "red"}}>{error}</p>}
     </div>
   );
-}
-
-export async function getServerSideProps(context) {
-  return {
-    props: {
-      csrfToken: await getCsrfToken(context),
-    },
-  };
 }
