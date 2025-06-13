@@ -15,6 +15,7 @@ const metodoPagoRoutes = require('./routes/metodoPagoRoutes');
 const proveedorRoutes = require('./routes/proveedorRoutes');
 const sucursalRoutes = require('./routes/sucursalRoutes');
 const ventaRoutes = require('./routes/ventaRoutes');
+const authRoutes = require('./routes/authRoutes');
 
 const app = express();
 app.use(cors({
@@ -44,5 +45,6 @@ app.use('/api/metodos-pago', metodoPagoRoutes);
 app.use('/api/proveedores', proveedorRoutes);
 app.use('/api/sucursales', sucursalRoutes);
 app.use('/api/ventas', ventaRoutes);
+app.use('/api/auth', authRoutes);
 
 app.listen(PORT, () => console.log(`Servidor corriendo en el puerto ${PORT}`));
