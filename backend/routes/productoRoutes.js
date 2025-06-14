@@ -5,7 +5,7 @@ const productoController = require('../controllers/productoController');
 // Rutas para productos
 router.post('/', productoController.crearProducto); // Crear producto
 router.get('/', productoController.obtenerProductos); // Obtener todos los productos
-router.get('/:id', productoController.obtenerProductoPorId); // Obtener uno por ID
+ // Obtener uno por ID
 router.put('/:id', productoController.actualizarProducto); // Actualizar producto
 router.delete('/:id', productoController.eliminarProducto); // Eliminar producto
 

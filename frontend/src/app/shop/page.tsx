@@ -5,7 +5,6 @@ import { useSession, signOut } from 'next-auth/react';
 import Image from 'next/image';
 import Head from 'next/head';
 import Link from 'next/link';
-import { getProductos } from '@/lib/api';
 import { useEffect, useState } from 'react';
 
 interface Producto {
@@ -42,17 +41,23 @@ export default function PaginaTienda() {
   useEffect(() => {
     const cargarProductos = async () => {
       try {
-        const data = await getProductos();
-        const adaptados = data.map((producto: any) => ({
+        const response = await fetch('http://localhost:5000/api/productos');
+        if (!response.ok) {
+          throw new Error('Error al obtener los productos');
+        }
+        const data = await response.json();
+        
+        // Asegurarnos de que las imágenes tengan la URL completa si son rutas relativas
+        const productosConImagen = data.map((producto: Producto) => ({
           ...producto,
-          categoria: typeof producto.categoria === 'string'
-            ? { _id: producto.categoria, nombre: '' }
-            : producto.categoria,
-          proveedor: typeof producto.proveedor === 'string'
-            ? { _id: producto.proveedor, nombre: '' }
-            : producto.proveedor,
+          imagen: producto.imagen 
+            ? producto.imagen.startsWith('http') 
+              ? producto.imagen 
+              : `http://localhost:5000${producto.imagen}`
+            : '/assets/img/licor_default.jpg',
         }));
-        setProductos(adaptados);
+        
+        setProductos(productosConImagen);
       } catch (err) {
         setError('Error al cargar los productos');
         console.error(err);
@@ -342,7 +347,7 @@ export default function PaginaTienda() {
                       <div className="card rounded-0">
                         <img 
                           className="card-img rounded-0 img-fluid" 
-                          src={producto.imagen || '/assets/img/licor_default.jpg'} 
+                          src={producto.imagen} 
                           alt={producto.nombre}
                           style={{ height: '300px', objectFit: 'cover' }}
                         />
@@ -378,11 +383,9 @@ export default function PaginaTienda() {
                         </Link>
                         <ul className="w-100 list-unstyled d-flex justify-content-between mb-0">
                           <li>Stock: {producto.stock}</li>
-                          <li className="pt-2">
-                            <span className="product-color-dot color-dot-amber float-left rounded-circle ml-1"></span>
-                            <span className="product-color-dot color-dot-clear float-left rounded-circle ml-1"></span>
-                            <span className="product-color-dot color-dot-dark float-left rounded-circle ml-1"></span>
-                          </li>
+                          {producto.categoria && (
+                            <li className="text-muted">{producto.categoria.nombre}</li>
+                          )}
                         </ul>
                         <ul className="list-unstyled d-flex justify-content-center mb-1">
                           <li>
@@ -394,6 +397,9 @@ export default function PaginaTienda() {
                           </li>
                         </ul>
                         <p className="text-center mb-0">${producto.precio.toFixed(2)}</p>
+                        {producto.descripcion && (
+                          <p className="text-muted small mt-2">{producto.descripcion.substring(0, 60)}...</p>
+                        )}
                       </div>
                     </div>
                   </div>

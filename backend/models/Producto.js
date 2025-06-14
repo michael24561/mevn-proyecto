@@ -5,7 +5,7 @@ const ProductoSchema = new mongoose.Schema({
     descripcion: { type: String },
     precio: { type: Number, required: true },
     stock: { type: Number, required: true },
-    imagen: { type: String, required: true },
+    imagen: { type: String, required: true }, // Guardará la ruta de la imagen
     categoria: { type: mongoose.Schema.Types.ObjectId, ref: "Categoria", required: true },
     proveedor: { type: mongoose.Schema.Types.ObjectId, ref: "Proveedor", required: true }
 });

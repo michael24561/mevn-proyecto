@@ -1,28 +1,12 @@
-// app/admin/productos/page.tsx
 'use client';
-
-import React, { useState, useEffect } from 'react';
-import { 
-  Box, 
-  Typography, 
-  Button, 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableContainer, 
-  TableHead, 
-  TableRow, 
-  Paper,
-  IconButton,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
-  Snackbar,
-  Alert
+import React, { useState, useEffect, useRef } from 'react';
+import {
+  Box, Typography, Button, Table, TableBody, TableCell,
+  TableContainer, TableHead, TableRow, Paper, IconButton,
+  Dialog, DialogTitle, DialogContent, DialogActions,
+  TextField, Snackbar, Alert, Avatar, CircularProgress, MenuItem
 } from '@mui/material';
-import { Edit, Delete, Add } from '@mui/icons-material';
+import { Edit, Delete, Add, CloudUpload } from '@mui/icons-material';
 
 interface Producto {
   _id: string;
@@ -31,12 +15,24 @@ interface Producto {
   precio: number;
   stock: number;
   imagen: string;
-  categoria: string;
-  proveedor: string;
+  categoria: { _id: string, nombre: string };
+  proveedor: { _id: string, nombre: string };
+}
+
+interface Categoria {
+  _id: string;
+  nombre: string;
+}
+
+interface Proveedor {
+  _id: string;
+  nombre: string;
 }
 
 export default function ProductosPage() {
   const [productos, setProductos] = useState<Producto[]>([]);
+  const [categorias, setCategorias] = useState<Categoria[]>([]);
+  const [proveedores, setProveedores] = useState<Proveedor[]>([]);
   const [openDialog, setOpenDialog] = useState(false);
   const [currentProducto, setCurrentProducto] = useState<Producto | null>(null);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
@@ -45,37 +41,64 @@ export default function ProductosPage() {
     descripcion: '',
     precio: 0,
     stock: 0,
-    imagen: '',
+    imagen: null as File | null,
+    imagenPreview: '',
     categoria: '',
     proveedor: ''
   });
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Obtener productos
-  const fetchProductos = async () => {
+  const loadData = async () => {
     try {
-      const res = await fetch('/api/productos');
-      const data = await res.json();
-      setProductos(data);
+      setIsLoading(true);
+      const [productosRes, categoriasRes, proveedoresRes] = await Promise.all([
+        fetch('http://localhost:5000/api/productos'),
+        fetch('http://localhost:5000/api/categorias'),
+        fetch('http://localhost:5000/api/proveedores')
+      ]);
+
+      if (!productosRes.ok || !categoriasRes.ok || !proveedoresRes.ok) {
+        throw new Error('Error al cargar datos');
+      }
+
+      const [productosData, categoriasData, proveedoresData] = await Promise.all([
+        productosRes.json(),
+        categoriasRes.json(),
+        proveedoresRes.json()
+      ]);
+
+      setProductos(productosData);
+      setCategorias(categoriasData);
+      setProveedores(proveedoresData);
     } catch (error) {
-      console.error('Error fetching productos:', error);
-      setSnackbar({ open: true, message: 'Error al cargar productos', severity: 'error' });
+      console.error('Error cargando datos:', error);
+      setSnackbar({ 
+        open: true, 
+        message: error instanceof Error ? error.message : 'Error al cargar datos', 
+        severity: 'error' 
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchProductos();
+    loadData();
   }, []);
 
-  // Manejar cambios en el formulario
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormState(prev => ({
-      ...prev,
-      [name]: name === 'precio' || name === 'stock' ? Number(value) : value
-    }));
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setFormState(prev => ({
+        ...prev,
+        imagen: file,
+        imagenPreview: URL.createObjectURL(file)
+      }));
+    }
   };
 
-  // Abrir diálogo para crear/editar
   const handleOpenDialog = (producto: Producto | null) => {
     if (producto) {
       setCurrentProducto(producto);
@@ -84,9 +107,10 @@ export default function ProductosPage() {
         descripcion: producto.descripcion,
         precio: producto.precio,
         stock: producto.stock,
-        imagen: producto.imagen,
-        categoria: producto.categoria,
-        proveedor: producto.proveedor
+        imagen: null,
+        imagenPreview: producto.imagen ? `${process.env.NEXT_PUBLIC_API_URL || ''}${producto.imagen}` : '',
+        categoria: producto.categoria._id,
+        proveedor: producto.proveedor._id
       });
     } else {
       setCurrentProducto(null);
@@ -95,7 +119,8 @@ export default function ProductosPage() {
         descripcion: '',
         precio: 0,
         stock: 0,
-        imagen: '',
+        imagen: null,
+        imagenPreview: '',
         categoria: '',
         proveedor: ''
       });
@@ -103,24 +128,39 @@ export default function ProductosPage() {
     setOpenDialog(true);
   };
 
-  // Enviar formulario
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
+
     try {
+      const formData = new FormData();
+      formData.append('nombre', formState.nombre);
+      formData.append('descripcion', formState.descripcion);
+      formData.append('precio', formState.precio.toString());
+      formData.append('stock', formState.stock.toString());
+      formData.append('categoria', formState.categoria);
+      formData.append('proveedor', formState.proveedor);
+      
+      if (formState.imagen) {
+        formData.append('imagen', formState.imagen);
+      } else if (!currentProducto) {
+        throw new Error('La imagen es requerida');
+      }
+
       const url = currentProducto 
-        ? `/api/productos/${currentProducto._id}`
-        : '/api/productos';
+        ? `http://localhost:5000/api/productos/${currentProducto._id}`
+        : 'http://localhost:5000/api/productos';
       const method = currentProducto ? 'PUT' : 'POST';
 
       const res = await fetch(url, {
         method,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formState),
+        body: formData,
       });
 
-      if (!res.ok) throw new Error('Error al guardar el producto');
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || 'Error al guardar el producto');
+      }
 
       setSnackbar({ 
         open: true, 
@@ -128,31 +168,47 @@ export default function ProductosPage() {
         severity: 'success' 
       });
       setOpenDialog(false);
-      fetchProductos();
+      await loadData();
     } catch (error) {
       console.error('Error:', error);
-      setSnackbar({ open: true, message: 'Error al guardar', severity: 'error' });
+      setSnackbar({ 
+        open: true, 
+        message: error instanceof Error ? error.message : 'Error al guardar', 
+        severity: 'error' 
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  // Eliminar producto
   const handleDelete = async (id: string) => {
     if (!confirm('¿Estás seguro de eliminar este producto?')) return;
     try {
-      const res = await fetch(`/api/productos/${id}`, { method: 'DELETE' });
+      const res = await fetch(`http://localhost:5000/api/productos/${id}`, { method: 'DELETE' });
       if (!res.ok) throw new Error('Error al eliminar');
       setSnackbar({ open: true, message: 'Producto eliminado', severity: 'success' });
-      fetchProductos();
+      await loadData();
     } catch (error) {
       console.error('Error:', error);
-      setSnackbar({ open: true, message: 'Error al eliminar', severity: 'error' });
+      setSnackbar({ 
+        open: true, 
+        message: error instanceof Error ? error.message : 'Error al eliminar', 
+        severity: 'error' 
+      });
     }
   };
 
-  // Cerrar Snackbar
   const handleCloseSnackbar = () => {
     setSnackbar(prev => ({ ...prev, open: false }));
   };
+
+  if (isLoading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', padding: 4 }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ p: 3 }}>
@@ -177,6 +233,9 @@ export default function ProductosPage() {
               <TableCell>Descripción</TableCell>
               <TableCell>Precio</TableCell>
               <TableCell>Stock</TableCell>
+              <TableCell>Categoría</TableCell>
+              <TableCell>Proveedor</TableCell>
+              <TableCell>Imagen</TableCell>
               <TableCell>Acciones</TableCell>
             </TableRow>
           </TableHead>
@@ -187,6 +246,17 @@ export default function ProductosPage() {
                 <TableCell>{producto.descripcion}</TableCell>
                 <TableCell>${producto.precio.toFixed(2)}</TableCell>
                 <TableCell>{producto.stock}</TableCell>
+                <TableCell>{producto.categoria?.nombre || 'Sin categoría'}</TableCell>
+                <TableCell>{producto.proveedor?.nombre || 'Sin proveedor'}</TableCell>
+                <TableCell>
+                  <Avatar 
+                    src={producto.imagen ? `${process.env.NEXT_PUBLIC_API_URL || ''}${producto.imagen}` : ''}
+                    variant="rounded"
+                    sx={{ width: 56, height: 56 }}
+                  >
+                    {!producto.imagen && <CloudUpload />}
+                  </Avatar>
+                </TableCell>
                 <TableCell>
                   <IconButton onClick={() => handleOpenDialog(producto)}>
                     <Edit color="primary" />
@@ -201,104 +271,142 @@ export default function ProductosPage() {
         </Table>
       </TableContainer>
 
-      {/* Diálogo para crear/editar */}
-      <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
+      <Dialog open={openDialog} onClose={() => !isSubmitting && setOpenDialog(false)} maxWidth="md" fullWidth>
         <DialogTitle>
           {currentProducto ? 'Editar Producto' : 'Nuevo Producto'}
         </DialogTitle>
         <form onSubmit={handleSubmit}>
           <DialogContent>
-            <TextField
-              margin="dense"
-              name="nombre"
-              label="Nombre"
-              type="text"
-              fullWidth
-              variant="outlined"
-              value={formState.nombre}
-              onChange={handleInputChange}
-              required
-            />
-            <TextField
-              margin="dense"
-              name="descripcion"
-              label="Descripción"
-              type="text"
-              fullWidth
-              variant="outlined"
-              value={formState.descripcion}
-              onChange={handleInputChange}
-              multiline
-              rows={3}
-            />
-            <TextField
-              margin="dense"
-              name="precio"
-              label="Precio"
-              type="number"
-              fullWidth
-              variant="outlined"
-              value={formState.precio}
-              onChange={handleInputChange}
-              required
-              inputProps={{ min: 0, step: 0.01 }}
-            />
-            <TextField
-              margin="dense"
-              name="stock"
-              label="Stock"
-              type="number"
-              fullWidth
-              variant="outlined"
-              value={formState.stock}
-              onChange={handleInputChange}
-              required
-              inputProps={{ min: 0 }}
-            />
-            <TextField
-              margin="dense"
-              name="imagen"
-              label="URL de la imagen"
-              type="text"
-              fullWidth
-              variant="outlined"
-              value={formState.imagen}
-              onChange={handleInputChange}
-              required
-            />
-            <TextField
-              margin="dense"
-              name="categoria"
-              label="Categoría ID"
-              type="text"
-              fullWidth
-              variant="outlined"
-              value={formState.categoria}
-              onChange={handleInputChange}
-              required
-            />
-            <TextField
-              margin="dense"
-              name="proveedor"
-              label="Proveedor ID"
-              type="text"
-              fullWidth
-              variant="outlined"
-              value={formState.proveedor}
-              onChange={handleInputChange}
-              required
-            />
+            <Box sx={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
+              <Box sx={{ flex: 1, minWidth: 300 }}>
+                <TextField
+                  margin="dense"
+                  label="Nombre"
+                  fullWidth
+                  variant="outlined"
+                  value={formState.nombre}
+                  onChange={(e) => setFormState({...formState, nombre: e.target.value})}
+                  required
+                  sx={{ mb: 2 }}
+                />
+                <TextField
+                  margin="dense"
+                  label="Descripción"
+                  fullWidth
+                  variant="outlined"
+                  value={formState.descripcion}
+                  onChange={(e) => setFormState({...formState, descripcion: e.target.value})}
+                  multiline
+                  rows={3}
+                  sx={{ mb: 2 }}
+                />
+                <TextField
+                  margin="dense"
+                  label="Precio"
+                  type="number"
+                  fullWidth
+                  variant="outlined"
+                  value={formState.precio}
+                  onChange={(e) => setFormState({...formState, precio: Number(e.target.value)})}
+                  required
+                  inputProps={{ min: 0, step: 0.01 }}
+                  sx={{ mb: 2 }}
+                />
+                <TextField
+                  margin="dense"
+                  label="Stock"
+                  type="number"
+                  fullWidth
+                  variant="outlined"
+                  value={formState.stock}
+                  onChange={(e) => setFormState({...formState, stock: Number(e.target.value)})}
+                  required
+                  inputProps={{ min: 0 }}
+                  sx={{ mb: 2 }}
+                />
+              </Box>
+
+              <Box sx={{ flex: 1, minWidth: 300 }}>
+                <input
+                  type="file"
+                  accept="image/*"
+                  ref={fileInputRef}
+                  onChange={handleImageChange}
+                  style={{ display: 'none' }}
+                />
+                <Button
+                  variant="outlined"
+                  startIcon={<CloudUpload />}
+                  fullWidth
+                  onClick={() => fileInputRef.current?.click()}
+                  sx={{ mb: 2 }}
+                >
+                  Seleccionar Imagen
+                </Button>
+                
+                {formState.imagenPreview && (
+                  <Avatar 
+                    src={formState.imagenPreview}
+                    variant="rounded"
+                    sx={{ width: '100%', height: 200, mb: 2 }}
+                  />
+                )}
+
+                <TextField
+                  select
+                  margin="dense"
+                  label="Categoría"
+                  fullWidth
+                  variant="outlined"
+                  value={formState.categoria}
+                  onChange={(e) => setFormState({...formState, categoria: e.target.value})}
+                  required
+                  sx={{ mb: 2 }}
+                >
+                  <MenuItem value="">Seleccione una categoría</MenuItem>
+                  {categorias.map((cat) => (
+                    <MenuItem key={cat._id} value={cat._id}>
+                      {cat.nombre}
+                    </MenuItem>
+                  ))}
+                </TextField>
+
+                <TextField
+                  select
+                  margin="dense"
+                  label="Proveedor"
+                  fullWidth
+                  variant="outlined"
+                  value={formState.proveedor}
+                  onChange={(e) => setFormState({...formState, proveedor: e.target.value})}
+                  required
+                >
+                  <MenuItem value="">Seleccione un proveedor</MenuItem>
+                  {proveedores.map((prov) => (
+                    <MenuItem key={prov._id} value={prov._id}>
+                      {prov.nombre}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              </Box>
+            </Box>
           </DialogContent>
           <DialogActions>
-            <Button onClick={() => setOpenDialog(false)}>Cancelar</Button>
-            <Button type="submit" variant="contained">
-              {currentProducto ? 'Actualizar' : 'Crear'}
+            <Button onClick={() => setOpenDialog(false)} disabled={isSubmitting}>
+              Cancelar
+            </Button>
+            <Button 
+              type="submit" 
+              variant="contained"
+              disabled={isSubmitting}
+              endIcon={isSubmitting ? <CircularProgress size={20} /> : null}
+            >
+              {isSubmitting ? 'Guardando...' : currentProducto ? 'Actualizar' : 'Crear'}
             </Button>
           </DialogActions>
         </form>
       </Dialog>
 
-      {/* Snackbar para notificaciones */}
       <Snackbar
         open={snackbar.open}
         autoHideDuration={6000}
